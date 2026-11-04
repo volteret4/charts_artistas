@@ -1,0 +1,50 @@
+# Charts de artistas
+
+Visor al estilo de `charts_sellos`, pero por artista: escribes un nombre y muestra su discografía, con vídeos de YouTube y la información de Last.fm.
+
+## Cómo funciona
+
+1. **Búsqueda**: se piden candidatos a MusicBrainz y Discogs. Se marca por defecto la coincidencia exacta de cada fuente, y puedes cambiarla porque hay muchos artistas homónimos.
+2. **Discografía**: se juntan los dos catálogos por artista + título. De Discogs solo cuentan los discos donde el artista es el titular (`role=Main`); sus remezclas y apariciones no. MusicBrainz manda en el tipo de disco. Lo que solo está en Discogs saca el tipo del formato de su edición principal.
+3. **Last.fm**: oyentes, escuchas, etiquetas, portada, wiki y canciones del disco; biografía, etiquetas y similares del artista. Con `LASTFM_USERNAME` también tus escuchas de cada disco. Se refresca a los 14 días.
+4. **YouTube**: `yt-dlp` busca de uno en uno y guarda hasta 5 vídeos cuyo título o canal nombren disco y artista. Si un disco solo está subido pista a pista, valen los vídeos del artista que nombren una de sus canciones. Si aún no se ha buscado un disco, se busca al pulsarlo.
+
+Al añadir un artista eliges qué secciones traer (álbumes, EP, singles, recopilatorios…). El botón **Secciones** las cambia después: lo desmarcado desaparece y, al volver a marcarlo, no se repiten las consultas ya guardadas.
+
+Al pulsar un artista similar en la cabecera, se busca para añadirlo.
+
+## Uso
+
+```bash
+./scripts/up.sh
+```
+
+Elige el perfil `charts_artistas`. La web queda en el puerto 8793.
+
+Para desarrollo, sin Docker y desde esta carpeta (lee `.env` si existe):
+
+```bash
+pip install -r requirements.txt && python app.py
+```
+
+| Variable | Para qué |
+|---|---|
+| `LASTFM_API_KEY` | Información de Last.fm |
+| `DISCOGS_TOKEN` | Opcional: sin él solo se usa MusicBrainz |
+| `LASTFM_USERNAME` | Opcional: tus escuchas de cada disco |
+| `SETTINGS_PASSWORD` | Panel de configuración ⚙ |
+| `CHARTS_DATA_DIR` | Carpeta de datos (por defecto `data/`) |
+
+## Si YouTube bloquea las búsquedas
+
+Si responde «Sign in to confirm you're not a bot», el trabajo se detiene y el artista queda como «incompleto». Exporta las cookies en formato Netscape a `data/cookies.txt` y pulsa ↻: solo se buscan los discos que faltan.
+
+## Limitaciones
+
+- Dos ediciones con títulos distintos («Beat» y «Beat (Remastered)») cuentan como discos distintos.
+- Los iconos de «ya lo tengo» vienen del servicio `ya_lo_tengo` (puerto 8780); sin él, simplemente no salen.
+
+## Código
+
+- `app.py`: servidor sin dependencias web, trabajos en segundo plano y SQLite (`data/charts_artistas.db`).
+- `static/app.js`: la web. El reproductor y los grupos vienen de `charts_orpheus`.
