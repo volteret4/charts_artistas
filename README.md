@@ -2,6 +2,40 @@
 
 Visor al estilo de `charts_sellos`, pero por artista: escribes un nombre y muestra su discografía, con vídeos de YouTube y la información de Last.fm.
 
+## Para qué sirve
+
+Para explorar la discografía de un artista de un vistazo: un mosaico de portadas con vídeos de YouTube e información de Last.fm, guardado en tu servidor para no repetir consultas.
+
+## Instalación individual
+
+Necesitas Docker.
+
+```bash
+git clone https://github.com/volteret4/charts_artistas.git
+```
+
+```bash
+cd charts_artistas && cp .env.example .env && mkdir -p data
+```
+
+```bash
+docker build -t charts-artistas .
+```
+
+```bash
+docker run -d --name charts-artistas --restart unless-stopped --env-file .env -e CHARTS_DATA_DIR=/app/data -v "$PWD/data:/app/data" -p 8793:8793 charts-artistas
+```
+
+Se abre en <http://localhost:8793>.
+
+## Instalación desde REPEAT-ONE
+
+Este módulo forma parte de [REPEAT-ONE](https://volteret4.github.io/repeat-one-web/), que permite elegir qué módulos instalar: [ver la instalación](https://github.com/volteret4/repeat-one-web#instalación). Allí se llama `charts_artistas`.
+
+## Versión pública
+
+Hay una [versión para navegador](https://volteret4.github.io/charts-web/artistas/) que no necesita servidor: guarda las búsquedas en tu navegador y usa tus propias claves.
+
 ## Cómo funciona
 
 1. **Búsqueda**: se piden candidatos a MusicBrainz y Discogs. Se marca por defecto la coincidencia exacta de cada fuente, y puedes cambiarla porque hay muchos artistas homónimos.
@@ -13,15 +47,9 @@ Al añadir un artista eliges qué secciones traer (álbumes, EP, singles, recopi
 
 Al pulsar un artista similar en la cabecera, se busca para añadirlo.
 
-## Uso
+## Desarrollo
 
-```bash
-./scripts/up.sh
-```
-
-Elige el perfil `charts_artistas`. La web queda en el puerto 8793.
-
-Para desarrollo, sin Docker y desde esta carpeta (lee `.env` si existe):
+Sin Docker y desde esta carpeta (lee `.env` si existe):
 
 ```bash
 pip install -r requirements.txt && python app.py
@@ -47,4 +75,4 @@ Si responde «Sign in to confirm you're not a bot», el trabajo se detiene y el 
 ## Código
 
 - `app.py`: servidor sin dependencias web, trabajos en segundo plano y SQLite (`data/charts_artistas.db`).
-- `static/app.js`: la web. El reproductor y los grupos vienen de `charts_orpheus`.
+- `static/app.js`: la web.
